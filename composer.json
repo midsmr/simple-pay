@@ -1,0 +1,18 @@
+{
+    "name": "midsmr/simple-pay",
+    "description": "易支付封装类",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Midsmr\\SimplePay\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jerry",
+            "email": "midsmr@qq.com"
+        }
+    ],
+    "require": {}
+}
