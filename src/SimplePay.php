@@ -14,7 +14,7 @@ class SimplePay
     }
 
     /**
-     * 创建订单方法
+     * 跳转提交
      *
      * @param string $type 支付类型
      * @param string $out_trade_no 商户订单号
@@ -25,7 +25,59 @@ class SimplePay
      * @param array|null $extends 拓展参数
      * @return string
      */
-    public function create(
+    public function submit(
+        string $type,
+        string $out_trade_no,
+        string $notify_url,
+        string $return_url,
+        string $name,
+        string $money,
+        ?array $extends = []
+    ): string
+    {
+        return $this->create('submit', $type, $out_trade_no, $notify_url, $return_url, $name, $money, $extends);
+    }
+
+    /**
+     * 接口提交
+     *
+     * @param string $type 支付类型
+     * @param string $out_trade_no 商户订单号
+     * @param string $notify_url 异步通知地址
+     * @param string $return_url 同步通知地址
+     * @param string $name 商品名称
+     * @param string $money 支付金额
+     * @param array|null $extends 拓展参数
+     * @return string
+     */
+    public function mapi(
+        string $type,
+        string $out_trade_no,
+        string $notify_url,
+        string $return_url,
+        string $name,
+        string $money,
+        ?array $extends = []
+    ): string
+    {
+        return $this->create('mapi', $type, $out_trade_no, $notify_url, $return_url, $name, $money, $extends);
+    }
+
+    /**
+     * 创建订单方法
+     *
+     * @param string $method 提交类型
+     * @param string $type 支付类型
+     * @param string $out_trade_no 商户订单号
+     * @param string $notify_url 异步通知地址
+     * @param string $return_url 同步通知地址
+     * @param string $name 商品名称
+     * @param string $money 支付金额
+     * @param array|null $extends 拓展参数
+     * @return string
+     */
+    protected function create(
+        string $method,
         string $type,
         string $out_trade_no,
         string $notify_url,
@@ -55,7 +107,15 @@ class SimplePay
 
         $query = http_build_query($params);
 
-        return "{$this->gateway}submit.php?{$query}";
+        if ($method == 'submit') {
+            $file = 'submit.php';
+        } elseif ($method == 'mapi') {
+            $file = 'mapi.php';
+        } else {
+            throw new \LogicException("错误的提交方式:{$method}");
+        }
+
+        return "{$this->gateway}?{$query}";
     }
 
     public function verify(array $params): bool
