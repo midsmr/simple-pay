@@ -35,7 +35,7 @@ class SimplePay
         ?array $extends = []
     ): string
     {
-        return $this->create('submit', $type, $out_trade_no, $notify_url, $return_url, $name, $money, $extends);
+        return $this->create('submit', $type, $out_trade_no, $notify_url, $return_url, $name, $money, extends: $extends);
     }
 
     /**
@@ -57,10 +57,12 @@ class SimplePay
         string $return_url,
         string $name,
         string $money,
+        string $clientip,
+        string $device,
         ?array $extends = []
     ): string
     {
-        return $this->create('mapi', $type, $out_trade_no, $notify_url, $return_url, $name, $money, $extends);
+        return $this->create('mapi', $type, $out_trade_no, $notify_url, $return_url, $name, $money, $clientip, $device, $extends);
     }
 
     /**
@@ -84,6 +86,8 @@ class SimplePay
         string $return_url,
         string $name,
         string $money,
+        ?string $clientip = '',
+        ?string $device = '',
         ?array $extends = []
     ): string
     {
@@ -102,20 +106,21 @@ class SimplePay
             'extends' => json_encode($extends)
         ];
 
-        $params['sign'] = $this->sign($params);
-        $params['sign_type'] = 'MD5';
-
-        $query = http_build_query($params);
-
         if ($method == 'submit') {
             $file = 'submit.php';
         } elseif ($method == 'mapi') {
             $file = 'mapi.php';
+            $params['clientip'] = $clientip;
+            $params['device'] = $device;
         } else {
             throw new \LogicException("错误的提交方式:{$method}");
         }
 
-        return "{$this->gateway}?{$query}";
+        $params['sign'] = $this->sign($params);
+        $params['sign_type'] = 'MD5';
+
+        $query = http_build_query($params);
+        return "{$this->gateway}{$file}?{$query}";
     }
 
     public function verify(array $params): bool
